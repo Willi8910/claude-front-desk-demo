@@ -49,13 +49,13 @@
 }
 
 :root {
-  --background: #fafbf9;
-  --foreground: #172c25;
+  --background: #f6f5f1;
+  --foreground: #283c35;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: #146347;
+  --primary: #355d4b;
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -126,5 +126,11 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  .desk-tab {
+    @apply flex items-center justify-center gap-1.5 rounded-md px-2 py-2 text-xs text-muted-foreground transition-colors data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm focus-visible:outline-2 focus-visible:outline-primary;
   }
 }
