@@ -104,7 +104,7 @@ export function FrontDesk() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: history, knowledge, bookings, now }),
-          signal: AbortSignal.timeout(35000),
+          signal: AbortSignal.timeout(58000),
         });
         data = await response.json();
       } catch {
