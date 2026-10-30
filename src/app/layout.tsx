@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Claude AI front desk — demo",
+  title: "AI front desk — demo",
   description:
     "A sample salon front desk that answers questions and books appointments.",
 };

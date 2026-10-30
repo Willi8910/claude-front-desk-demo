@@ -17,6 +17,8 @@ Open http://localhost:3000. No credentials are required to try the offline flow.
 | Variable             | Purpose                                                    |
 | -------------------- | ---------------------------------------------------------- |
 | `AI_MODEL`           | Gateway model ID; defaults to `anthropic/claude-haiku-4.5` |
+| `DEEPSEEK_API_KEY`   | Optional. When set, the assistant runs on DeepSeek instead of Claude (used by the public demo) |
+| `DEEPSEEK_MODEL`     | Optional DeepSeek model; defaults to `deepseek-chat` |
 | `AI_GATEWAY_API_KEY` | Optional Vercel AI Gateway key for local development       |
 
 On Vercel, AI Gateway uses the deployment's automatic OIDC authentication. No provider-specific Anthropic key is used. The server uses the latest stable AI SDK installed in the lockfile; SDK 7 uses `tool({ inputSchema, execute })` and `isStepCount(5)` for multi-step calls. Credentials stay on the server.

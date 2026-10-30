@@ -1,3 +1,4 @@
+import { deepseek } from "@ai-sdk/deepseek";
 import { generateText, tool, isStepCount } from "ai";
 import { z } from "zod";
 import {
@@ -106,9 +107,14 @@ export async function POST(request: Request) {
     state.bookings = result.bookings;
     return result;
   };
+  // Claude via the Vercel AI Gateway by default; DeepSeek when its key is set (the public demo).
+  const engine = process.env.DEEPSEEK_API_KEY ? "deepseek" : "claude";
   try {
     const result = await generateText({
-      model: process.env.AI_MODEL || "anthropic/claude-haiku-4.5",
+      model:
+        engine === "deepseek"
+          ? deepseek(process.env.DEEPSEEK_MODEL || "deepseek-chat")
+          : process.env.AI_MODEL || "anthropic/claude-haiku-4.5",
       maxOutputTokens: 600,
       maxRetries: 0,
       stopWhen: isStepCount(5),
@@ -168,6 +174,7 @@ export async function POST(request: Request) {
       bookings: state.bookings,
       handedOff,
       offline: false,
+      engine,
     });
   } catch {
     // No partial tool state escapes a failed generation; deterministic fallback starts from the original snapshot.

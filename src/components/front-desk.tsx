@@ -45,6 +45,7 @@ export function FrontDesk() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
+  const [engine, setEngine] = useState<string | null>(null);
   const [handedOff, setHandedOff] = useState(false);
   const [changed, setChanged] = useState<string[]>([]);
   const [storageNote, setStorageNote] = useState("");
@@ -126,6 +127,7 @@ export function FrontDesk() {
         }
       }
       setOffline(Boolean(data.offline));
+      if (data.engine) setEngine(data.engine);
       setHandedOff((old) => old || Boolean(data.handedOff));
       setMessages([
         ...history,
@@ -184,12 +186,17 @@ export function FrontDesk() {
             care. A little less admin.
           </div>
           <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-[42px]">
-            Claude AI front desk{" "}
+            AI front desk{" "}
             <span className="font-normal text-muted-foreground">— demo</span>
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
             Answers for your customers. Appointments in your calendar. Try a
             conversation and watch your front desk update.
+            <br />
+            <span className="text-xs">
+              Built to run on Claude. This public demo uses DeepSeek; switching
+              models is one setting.
+            </span>
           </p>
         </section>
         <div className="grid items-start gap-6 lg:grid-cols-[1.12fr_1fr]">
@@ -298,6 +305,12 @@ export function FrontDesk() {
                   <span>
                     Sample data only · Please use fictional contact details
                   </span>
+                  {!offline && engine === "deepseek" && (
+                    <span>● running on DeepSeek (demo)</span>
+                  )}
+                  {!offline && engine === "claude" && (
+                    <span>● running on Claude</span>
+                  )}
                   {offline && (
                     <span className="text-amber-700">● offline demo mode</span>
                   )}
@@ -477,7 +490,7 @@ export function FrontDesk() {
               <p>
                 One conversation, less back-and-forth.
                 <br />
-                Claude handles the details. Your team gets time back.
+                The assistant handles the details. Your team gets time back.
               </p>
             </div>
           </section>
