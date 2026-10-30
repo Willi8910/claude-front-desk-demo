@@ -139,3 +139,25 @@ it("answers the cancellation policy as knowledge rather than a cancel request", 
     fallback(state, [ask("What is your cancellation policy?")]).reply,
   ).toContain("24 hours");
 });
+it("books from natural phrasing after an earlier price question", () => {
+  const history: Message[] = [];
+  let current = state;
+  for (const text of [
+    "How much is a haircut?",
+    "Book a manicure tomorrow at 3pm",
+    "My name is Sara, phone 55512345",
+    "yes",
+  ]) {
+    history.push(ask(text));
+    const result = fallback(current, history);
+    current = { ...current, bookings: result.bookings };
+    history.push({ role: "assistant", content: result.reply });
+  }
+  const booked = current.bookings.at(-1);
+  expect(booked).toMatchObject({
+    service: "Manicure",
+    start_time: "15:00",
+    name: "Sara",
+    phone: "55512345",
+  });
+});

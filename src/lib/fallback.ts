@@ -75,11 +75,19 @@ export function fallback(state: State, messages: Message[]) {
       last,
     ) ||
     confirmed ||
-    /name\s*:|phone\s*:|\d{2}:\d{2}|\d{4}-\d{2}-\d{2}/i.test(last);
-  if (isBooking) {
-    const service = services(state.knowledge).find((s) =>
-      users.toLowerCase().includes(s.name.toLowerCase()),
+    /name\s*:|my name is|phone|\d{2}:\d{2}|\b\d{1,2}\s*(am|pm)\b|\d{4}-\d{2}-\d{2}|\d{7,}/i.test(
+      last,
     );
+  if (isBooking) {
+    // The most recently mentioned service wins, so an earlier price question can't hijack the booking.
+    const userMessages = active.filter((m) => m.role === "user").reverse();
+    const service = userMessages
+      .map((m) =>
+        services(state.knowledge).find((s) =>
+          m.content.toLowerCase().includes(s.name.toLowerCase()),
+        ),
+      )
+      .find(Boolean);
     const dates = [...users.matchAll(/\b\d{4}-\d{2}-\d{2}\b/g)];
     const date =
       dates.at(-1)?.[0] ||
@@ -88,13 +96,24 @@ export function fallback(state: State, messages: Message[]) {
         : /today|اليوم/i.test(users)
           ? qatarDate(state.now)
           : undefined);
-    const start_time = [...users.matchAll(/\b([01]\d|2[0-3]):([0-5]\d)\b/g)].at(
-      -1,
-    )?.[0];
-    const phone = [...users.matchAll(/(?:phone\s*:\s*)(\+?[\d ()-]{7,25})/gi)]
-      .at(-1)?.[1]
-      ?.trim();
-    const name = [...users.matchAll(/name\s*:\s*([^\n,;]+)/gi)]
+    const times = [
+      ...users.matchAll(
+        /\b(\d{1,2})(?::([0-5]\d))?\s*(am|pm)\b|\b([01]\d|2[0-3]):([0-5]\d)\b/gi,
+      ),
+    ].map((m) => {
+      if (!m[3]) return `${m[4]}:${m[5]}`;
+      const hour = (Number(m[1]) % 12) + (/pm/i.test(m[3]) ? 12 : 0);
+      return `${String(hour).padStart(2, "0")}:${m[2] || "00"}`;
+    });
+    const start_time = times.at(-1);
+    // Prefer an explicitly labelled phone; otherwise take a bare 7–15 digit number (dates never match).
+    const phone =
+      [...users.matchAll(/phone\s*:?\s*(\+?\d[\d ()-]{5,23}\d)/gi)]
+        .at(-1)?.[1]
+        ?.trim() || [...users.matchAll(/(\+?\d{7,15})\b/g)].at(-1)?.[1];
+    const name = [
+      ...users.matchAll(/(?:name\s*:|my name is|i am|i'm)\s*([^\n,;.\d]+)/gi),
+    ]
       .at(-1)?.[1]
       ?.trim();
     const reference = [...users.matchAll(/LUM-[A-Z0-9]+(?:-[A-Z0-9]+)*/gi)].at(
